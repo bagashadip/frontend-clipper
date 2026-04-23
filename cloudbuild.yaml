@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# cloudbuild.yaml  —  GCP Cloud Build pipeline for the Next.js frontend
+#
+# Builds the frontend Docker image, pushes it to Artifact Registry, and
+# optionally rolls out to Cloud Run (serverless — no GPU needed for the UI).
+#
+# Required substitutions (set in trigger or --substitutions):
+#   _REGION              e.g. asia-southeast1
+#   _REPO                e.g. clipper-repo  (Artifact Registry repo name)
+#   _SERVICE             e.g. clipper-frontend  (Cloud Run service name)
+#   _BACKEND_URL         e.g. http://34.177.101.239:8000
+#
+# Image tags:
+#   ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/frontend:${SHORT_SHA}
+#   ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/frontend:latest
+# ─────────────────────────────────────────────────────────────────────────────
+
+substitutions:
+  _REGION: asia-southeast1
+  _REPO: clipper-repo
+  _SERVICE: clipper-frontend
+  _BACKEND_URL: http://34.177.101.239:8000
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+
+steps:
+  # ── Step 1: Build the image ────────────────────────────────────────────────
+  - name: gcr.io/cloud-builders/docker
+    id: build
+    args:
+      - build
+      - --file=Dockerfile
+      - --build-arg=NEXT_PUBLIC_BACKEND_URL=$_BACKEND_URL
+      - --cache-from=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:latest
+      - --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:$SHORT_SHA
+      - --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:latest
+      - .
+
+  # ── Step 2: Push both tags ─────────────────────────────────────────────────
+  - name: gcr.io/cloud-builders/docker
+    id: push-sha
+    waitFor: [build]
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:$SHORT_SHA
+
+  - name: gcr.io/cloud-builders/docker
+    id: push-latest
+    waitFor: [build]
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:latest
+
+  # ── Step 3: Deploy to Cloud Run ────────────────────────────────────────────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    id: deploy
+    waitFor: [push-sha]
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - $_SERVICE
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:$SHORT_SHA
+      - --region=$_REGION
+      - --platform=managed
+      - --allow-unauthenticated
+      - --port=3000
+      - --min-instances=1
+      - --max-instances=10
+      - --memory=512Mi
+      - --cpu=1
+      - --set-env-vars=NEXT_PUBLIC_BACKEND_URL=$_BACKEND_URL
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/frontend:latest
