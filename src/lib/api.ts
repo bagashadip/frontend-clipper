@@ -7,11 +7,11 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function processURL(youtube_url: string, categories: string[] = ["edukasi", "lucu", "urgent_panas"]): Promise<ProcessURLResponse> {
+export async function processURL(youtube_url: string): Promise<ProcessURLResponse> {
   const res = await fetch(`${API_BASE}/process-url`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ youtube_url, categories }),
+    body: JSON.stringify({ youtube_url }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));

@@ -206,13 +206,13 @@ function Home() {
     }
   };
 
-  const handleSubmit = async (url: string, categories?: string[]) => {
+  const handleSubmit = async (url: string) => {
     setError(null);
     setLoading(true);
     setActiveProject(null);
 
     try {
-      const result = await processURL(url, categories);
+      const result = await processURL(url);
       const data = await getVideo(result.video_id);
       setActiveProject(data);
 
