@@ -501,9 +501,21 @@ function Home() {
 
           {/* Loading new project (before activeProject is set) */}
           {!activeProject && loading && (
-            <section className="px-6 pt-8">
-              <ProjectDetailSkeleton />
-              <ClipGridSkeleton />
+            <section className="flex flex-col items-center justify-center min-h-[60vh] gap-6 px-6">
+              {/* Animated ring */}
+              <div className="relative w-20 h-20">
+                <div className="absolute inset-0 rounded-full border-4 border-purple-500/20" />
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 animate-spin" />
+                <div className="absolute inset-[14px] rounded-full bg-purple-500/20 animate-pulse" />
+              </div>
+              <div className="text-center space-y-1.5">
+                <p className="text-base font-semibold text-zinc-800 dark:text-zinc-200">
+                  Submitting your video
+                </p>
+                <p className="text-sm text-zinc-500">
+                  AI is preparing to analyze your content…
+                </p>
+              </div>
             </section>
           )}
 
