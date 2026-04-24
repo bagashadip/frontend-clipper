@@ -9,30 +9,48 @@ const REMINDERS = [
 ];
 
 function ReminderTicker() {
-  const [idx, setIdx]         = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [idx, setIdx]     = useState(0);
+  const [opacity, setOpacity] = useState(0);
+  const [translateY, setTranslateY] = useState(6);
 
+  // Fade in on mount
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setOpacity(1);
+      setTranslateY(0);
+    }, 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Cycle: fade out → swap → fade in every 5s
   useEffect(() => {
     const cycle = setInterval(() => {
-      // Fade out
-      setVisible(false);
-      // After fade-out completes, swap text then fade in
+      // Fade out + slide down
+      setOpacity(0);
+      setTranslateY(6);
       setTimeout(() => {
         setIdx((i) => (i + 1) % REMINDERS.length);
-        setVisible(true);
-      }, 700);
+        // Tiny delay so the new text is set before fading in
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setOpacity(1);
+            setTranslateY(0);
+          });
+        });
+      }, 600);
     }, 5000);
     return () => clearInterval(cycle);
   }, []);
 
   return (
-    <div className="mt-8 flex items-start justify-center gap-2 min-h-[2rem]">
-      <span className="mt-0.5 shrink-0 w-1 h-1 rounded-full bg-purple-400/60 inline-block" />
+    <div className="mt-8 flex justify-center min-h-[2rem]">
       <p
-        style={{ transition: "opacity 0.7s ease, transform 0.7s ease" }}
-        className={`text-xs text-zinc-400 dark:text-zinc-500 text-center max-w-xs leading-relaxed italic
-          ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"}
-        `}
+        style={{
+          opacity,
+          transform: `translateY(${translateY}px)`,
+          transition: "opacity 0.6s ease, transform 0.6s ease",
+        }}
+        className="text-xs text-zinc-400 dark:text-zinc-500 text-center max-w-sm leading-relaxed italic"
       >
         {REMINDERS[idx]}
       </p>
