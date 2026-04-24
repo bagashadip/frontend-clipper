@@ -210,6 +210,9 @@ function Home() {
     setError(null);
     setLoading(true);
     setActiveProject(null);
+    // Prevent the ?project= param effect from calling selectProject
+    // after router.replace below, which would cause a skeleton flash
+    submittedRef.current = true;
 
     try {
       const result = await processURL(url);
@@ -234,6 +237,7 @@ function Home() {
     setActiveProject(null);
     setError(null);
     setLoading(false);
+    submittedRef.current = false;
     router.replace("/app", { scroll: false });
   };
 
