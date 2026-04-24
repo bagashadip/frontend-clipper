@@ -1,6 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+
+const REMINDERS = [
+  "Platform ini menggunakan AI dan dapat membuat kesalahan.",
+  "Kamu dapat mendapatkan kualitas video lebih baik dengan upgrade ke akun Pro.",
+];
+
+function ReminderTicker() {
+  const [idx, setIdx]         = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const cycle = setInterval(() => {
+      // Fade out
+      setVisible(false);
+      // After fade-out completes, swap text then fade in
+      setTimeout(() => {
+        setIdx((i) => (i + 1) % REMINDERS.length);
+        setVisible(true);
+      }, 700);
+    }, 5000);
+    return () => clearInterval(cycle);
+  }, []);
+
+  return (
+    <div className="mt-8 flex items-start justify-center gap-2 min-h-[2rem]">
+      <span className="mt-0.5 shrink-0 w-1 h-1 rounded-full bg-purple-400/60 inline-block" />
+      <p
+        style={{ transition: "opacity 0.7s ease, transform 0.7s ease" }}
+        className={`text-xs text-zinc-400 dark:text-zinc-500 text-center max-w-xs leading-relaxed italic
+          ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1"}
+        `}
+      >
+        {REMINDERS[idx]}
+      </p>
+    </div>
+  );
+}
 
 const STEPS = [
   { key: "downloading",  label: "Downloading",  desc: "Fetching video from YouTube" },
@@ -73,6 +111,8 @@ export default function ProgressBar({ status }: { status: string }) {
           This may take a few minutes depending on video length
         </p>
       </div>
+
+      <ReminderTicker />
     </div>
   );
 }
