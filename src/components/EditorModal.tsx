@@ -436,6 +436,10 @@ export default function EditorModal({ clip, subscriptionTier, onClose, onSaved }
                     </div>
                   )}
                 </div>
+                {/* Preview quality notice */}
+                <p className="mt-2 text-[10px] text-zinc-500 text-center max-w-[280px]">
+                  Preview is 480p for performance. Download to get the full {clip.quality || "480p"} quality.
+                </p>
 
                 {/* Edit Crop Position button (pro only) */}
                 {isPro && (

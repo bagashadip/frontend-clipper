@@ -273,6 +273,14 @@ function Home() {
       setProjects((prev) =>
         prev.map((p) => (p.id === updated.id ? updated : p))
       );
+
+      // If the clip just entered a re-render queue, start polling the video
+      // so the UI updates automatically when rendering finishes.
+      const isRerendering =
+        updatedClip.status === "pending" || updatedClip.status === "rendering";
+      if (isRerendering && !pollRef.current) {
+        pollVideo(activeProject.id);
+      }
     }
   };
 
