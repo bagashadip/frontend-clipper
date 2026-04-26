@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Save, RotateCcw, Type, Plus, Trash2, Clock, Move, Monitor, Smartphone, Crop, Sparkles, ArrowLeft } from "lucide-react";
+import { X, Save, RotateCcw, Type, Plus, Trash2, Clock, Move, Monitor, Smartphone, Crop, Sparkles, ArrowLeft, Lock } from "lucide-react";
 import { Clip, Subtitle } from "@/lib/types";
 import { updateClip, updateSubtitle, createSubtitle, deleteSubtitle, getClipPreviewUrl, getClipProxyUrl } from "@/lib/api";
 
@@ -11,6 +11,12 @@ interface EditorModalProps {
   onClose: () => void;
   onSaved: () => void;
 }
+
+const QUALITY_OPTIONS = [
+  { value: "480p", label: "480p", desc: "SD — fastest render", proOnly: false },
+  { value: "720p", label: "720p", desc: "HD — recommended", proOnly: true },
+  { value: "1080p", label: "1080p", desc: "Full HD — best quality", proOnly: true },
+] as const;
 
 const CAPTION_STYLES = [
   { key: "classic" as const, label: "Classic", desc: "White text, black stroke" },
@@ -27,6 +33,7 @@ export default function EditorModal({ clip, subscriptionTier, onClose, onSaved }
   const [startTime, setStartTime] = useState(clip.start_time);
   const [endTime, setEndTime] = useState(clip.end_time);
   const [captionStyle, setCaptionStyle] = useState(clip.caption_style);
+  const [quality, setQuality] = useState(clip.quality || "480p");
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [subtitles, setSubtitles] = useState<Subtitle[]>(clip.subtitles);
@@ -211,6 +218,7 @@ export default function EditorModal({ clip, subscriptionTier, onClose, onSaved }
         start_time: startTime,
         end_time: endTime,
         caption_style: captionStyle,
+        quality,
       };
       if (isPro) {
         payload.export_format = exportFormat;
@@ -552,6 +560,39 @@ export default function EditorModal({ clip, subscriptionTier, onClose, onSaved }
               </div>
             </div>
 
+            {/* Quality Selector */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Output Quality</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {QUALITY_OPTIONS.map((q) => {
+                  const locked = q.proOnly && !isPro;
+                  return (
+                    <button
+                      key={q.value}
+                      onClick={() => !locked && setQuality(q.value)}
+                      disabled={locked}
+                      className={`p-3 rounded-xl border text-left transition-all ${
+                        quality === q.value
+                          ? "border-purple-500 bg-purple-50 dark:bg-purple-600/10"
+                          : locked
+                          ? "border-zinc-200 dark:border-zinc-700 opacity-40 cursor-not-allowed"
+                          : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{q.label}</span>
+                        {locked && <Lock className="w-3 h-3 text-zinc-500" />}
+                      </div>
+                      <div className="text-xs text-zinc-500 mt-0.5">{q.desc}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              {!isPro && (
+                <p className="mt-2 text-[11px] text-zinc-500">720p &amp; 1080p require a Pro plan.</p>
+              )}
+            </div>
+
             {/* Transcript Editor */}
             <div className="flex-1 overflow-auto">
               <div className="flex items-center justify-between mb-3">
@@ -721,6 +762,7 @@ export default function EditorModal({ clip, subscriptionTier, onClose, onSaved }
               setStartTime(clip.start_time);
               setEndTime(clip.end_time);
               setCaptionStyle(clip.caption_style);
+              setQuality(clip.quality || "480p");
               setSubtitles(clip.subtitles);
               setExportFormat(clip.export_format || "9:16");
               setCropXPercent(clip.crop_x_percent ?? 50);

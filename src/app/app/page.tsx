@@ -586,7 +586,6 @@ function Home() {
                   <ClipGrid
                     clips={activeProject.clips}
                     youtubeId={activeProject.youtube_id}
-                    subscriptionTier={subscriptionTier}
                     onSelectClip={handleClipSelect}
                     onClipUpdate={handleClipUpdate}
                   />

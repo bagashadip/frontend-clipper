@@ -6,12 +6,11 @@ import ClipCard from "./ClipCard";
 interface ClipGridProps {
   clips: Clip[];
   youtubeId: string;
-  subscriptionTier: string;
   onSelectClip: (clip: Clip) => void;
   onClipUpdate?: (clip: Clip) => void;
 }
 
-export default function ClipGrid({ clips, youtubeId, subscriptionTier, onSelectClip, onClipUpdate }: ClipGridProps) {
+export default function ClipGrid({ clips, youtubeId, onSelectClip, onClipUpdate }: ClipGridProps) {
   if (clips.length === 0) return null;
 
   const sortedClips = [...clips].sort(
@@ -30,7 +29,6 @@ export default function ClipGrid({ clips, youtubeId, subscriptionTier, onSelectC
             key={clip.id}
             clip={clip}
             youtubeId={youtubeId}
-            subscriptionTier={subscriptionTier}
             onSelect={onSelectClip}
             onClipUpdate={onClipUpdate}
           />
