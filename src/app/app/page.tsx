@@ -152,7 +152,15 @@ function Home() {
             prev.map((p) => (p.id === data.id ? data : p))
           );
 
-          if (!PROCESSING_STATUSES.includes(data.status)) {
+          // Stop only when the video itself AND all clips are in a terminal state.
+          // Without the clips check, polling stops while clips are still
+          // "pending"/"rendering", leaving ClipCards stuck in their loading skeleton.
+          const videoSettled = !PROCESSING_STATUSES.includes(data.status);
+          const allClipsSettled = data.clips.every(
+            (c) => c.status === "completed" || c.status === "failed"
+          );
+
+          if (videoSettled && allClipsSettled) {
             stopPolling();
             setLoading(false);
           }
@@ -192,8 +200,15 @@ function Home() {
       const fresh = await getVideo(project.id);
       setActiveProject(fresh);
 
-      // If still processing, start polling
-      if (PROCESSING_STATUSES.includes(fresh.status)) {
+      // Start polling if the video is processing OR if any clip is still
+      // rendering (video.status can be "completed" while clips are mid-render).
+      const hasActiveTasks =
+        PROCESSING_STATUSES.includes(fresh.status) ||
+        fresh.clips.some(
+          (c) => c.status === "pending" || c.status === "rendering"
+        );
+
+      if (hasActiveTasks) {
         setLoading(true);
         pollVideo(fresh.id);
       } else {
