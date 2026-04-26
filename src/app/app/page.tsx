@@ -265,14 +265,14 @@ function Home() {
     setSelectedClip(clip);
   };
 
-  const handleEditorSaved = async () => {
+  const handleEditorSaved = () => {
     setSelectedClip(null);
     if (activeProject) {
-      const data = await getVideo(activeProject.id);
-      setActiveProject(data);
-      setProjects((prev) =>
-        prev.map((p) => (p.id === data.id ? data : p))
-      );
+      // Don't re-fetch immediately — the clip just entered "pending".
+      // Polling will pick up the updated state within 3s without causing a flash.
+      if (!pollRef.current) {
+        pollVideo(activeProject.id);
+      }
     }
   };
 
