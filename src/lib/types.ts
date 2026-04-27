@@ -33,6 +33,7 @@ export interface SourceVideo {
   youtube_id: string;
   title: string | null;
   duration_seconds: number | null;
+  max_source_height: number | null;
   status:
     | "pending"
     | "downloading"

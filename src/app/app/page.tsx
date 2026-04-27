@@ -618,6 +618,7 @@ function Home() {
       {selectedClip && (
         <EditorModal
           clip={selectedClip}
+          maxSourceHeight={activeProject?.max_source_height ?? null}
           subscriptionTier={subscriptionTier}
           onClose={() => setSelectedClip(null)}
           onSaved={handleEditorSaved}

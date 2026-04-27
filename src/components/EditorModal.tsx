@@ -8,9 +8,21 @@ import { updateClip, updateSubtitle, createSubtitle, deleteSubtitle, getClipPrev
 interface EditorModalProps {
   clip: Clip;
   subscriptionTier: string;
+  maxSourceHeight?: number | null;
   onClose: () => void;
   onSaved: () => void;
 }
+
+// Min source height required to produce each vertical quality without upscaling.
+// For 9:16 crop: crop_width = source_height * 9/16
+//   480p vertical: need crop_width ≥ 480 → source_height ≥ 854  (we request 1080p: 607px, still ≥ 480)
+//   720p vertical: need crop_width ≥ 720 → source_height ≥ 1280  (we request 1440p: 810px ≥ 720)
+//  1080p vertical: need crop_width ≥ 1080 → source_height ≥ 1920 (we request 2160p: 1215px ≥ 1080)
+const MIN_SOURCE_HEIGHT_VERTICAL: Record<string, number> = {
+  "480p": 854,
+  "720p": 1280,
+  "1080p": 1920,
+};
 
 const QUALITY_OPTIONS = [
   { value: "480p", label: "480p", desc: "SD — fastest render", proOnly: false },
@@ -27,7 +39,7 @@ const CAPTION_STYLES = [
   { key: "none" as const, label: "No Captions", desc: "Clean video only" },
 ];
 
-export default function EditorModal({ clip, subscriptionTier, onClose, onSaved }: EditorModalProps) {
+export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, onClose, onSaved }: EditorModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const proxyVideoRef = useRef<HTMLVideoElement>(null);
   const [startTime, setStartTime] = useState(clip.start_time);
@@ -565,30 +577,56 @@ export default function EditorModal({ clip, subscriptionTier, onClose, onSaved }
               <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Output Quality</h3>
               <div className="grid grid-cols-3 gap-2">
                 {QUALITY_OPTIONS.map((q) => {
-                  const locked = q.proOnly && !isPro;
+                  const proLocked = q.proOnly && !isPro;
+                  // Check if this quality is achievable with the source video
+                  const sourceUnavailable = maxSourceHeight != null && (() => {
+                    if (exportFormat === "9:16") {
+                      return maxSourceHeight < (MIN_SOURCE_HEIGHT_VERTICAL[q.value] ?? 0);
+                    } else {
+                      const needed: Record<string, number> = { "480p": 480, "720p": 720, "1080p": 1080 };
+                      return maxSourceHeight < (needed[q.value] ?? 0);
+                    }
+                  })();
+                  const unavailable = proLocked || sourceUnavailable;
                   return (
                     <button
                       key={q.value}
-                      onClick={() => !locked && setQuality(q.value)}
-                      disabled={locked}
+                      onClick={() => !unavailable && setQuality(q.value)}
+                      disabled={unavailable}
+                      title={
+                        sourceUnavailable
+                          ? `Source video is only ${maxSourceHeight}p — not enough for ${q.value} output`
+                          : proLocked
+                          ? "Requires Pro plan"
+                          : undefined
+                      }
                       className={`p-3 rounded-xl border text-left transition-all ${
                         quality === q.value
                           ? "border-purple-500 bg-purple-50 dark:bg-purple-600/10"
-                          : locked
-                          ? "border-zinc-200 dark:border-zinc-700 opacity-40 cursor-not-allowed"
+                          : unavailable
+                          ? "border-zinc-200 dark:border-zinc-700 opacity-35 cursor-not-allowed"
                           : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600"
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">{q.label}</span>
-                        {locked && <Lock className="w-3 h-3 text-zinc-500" />}
+                        {proLocked && !sourceUnavailable && <Lock className="w-3 h-3 text-zinc-500" />}
+                        {sourceUnavailable && (
+                          <span className="text-[9px] text-red-400 font-semibold leading-tight text-right">N/A</span>
+                        )}
                       </div>
                       <div className="text-xs text-zinc-500 mt-0.5">{q.desc}</div>
                     </button>
                   );
                 })}
               </div>
-              {!isPro && (
+              {maxSourceHeight != null && (
+                <p className="mt-2 text-[11px] text-zinc-500">
+                  Source: up to {maxSourceHeight}p
+                  {!isPro && " · 720p &amp; 1080p require Pro"}
+                </p>
+              )}
+              {maxSourceHeight == null && !isPro && (
                 <p className="mt-2 text-[11px] text-zinc-500">720p &amp; 1080p require a Pro plan.</p>
               )}
             </div>
