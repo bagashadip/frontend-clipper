@@ -39,6 +39,128 @@ const CAPTION_STYLES = [
   { key: "none" as const, label: "No Captions", desc: "Clean video only" },
 ];
 
+// ── Caption Style Live Preview ────────────────────────────────────────────
+function CaptionPreview({ styleKey }: { styleKey: string }) {
+  const words = ["Jangan", "pernah", "menyerah"];
+  const [activeWord, setActiveWord] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+
+  useEffect(() => {
+    if (styleKey !== "hormozi_dynamic" && styleKey !== "impact_pop") return;
+    const t = setInterval(() => setActiveWord((i) => (i + 1) % 3), 700);
+    return () => clearInterval(t);
+  }, [styleKey]);
+
+  useEffect(() => {
+    if (styleKey !== "typewriter") return;
+    let tick = 0;
+    const t = setInterval(() => {
+      tick++;
+      if (tick > 6 + 5) tick = 0; // 6 chars + 5-tick pause
+      setCharCount(Math.min(tick, 6));
+    }, 130);
+    return () => clearInterval(t);
+  }, [styleKey]);
+
+  const outline1 = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
+  const outline2 = "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -1px 0 0 #000, 1px 0 0 #000";
+  const wrap = "w-full h-12 rounded-lg bg-black/70 flex items-end justify-center pb-1.5 mb-2 overflow-hidden";
+
+  if (styleKey === "none") {
+    return (
+      <div className={wrap}>
+        <span className="text-zinc-600 text-[10px]">— no captions —</span>
+      </div>
+    );
+  }
+
+  if (styleKey === "classic") {
+    return (
+      <div className={wrap}>
+        <span className="font-bold text-[9px] text-white leading-none" style={{ textShadow: outline1 }}>
+          Jangan pernah menyerah
+        </span>
+      </div>
+    );
+  }
+
+  if (styleKey === "hormozi") {
+    return (
+      <div className={wrap}>
+        <span
+          className="font-black text-[9px] uppercase tracking-wide leading-none"
+          style={{ color: "#FFE000", textShadow: outline2 }}
+        >
+          JANGAN PERNAH MENYERAH
+        </span>
+      </div>
+    );
+  }
+
+  if (styleKey === "hormozi_dynamic") {
+    return (
+      <div className={wrap}>
+        <div className="flex gap-0.5 items-end">
+          {words.map((word, i) => (
+            <span
+              key={i}
+              className="font-black text-[9px] leading-none inline-block"
+              style={{
+                color: i === activeWord ? "#FFE000" : "white",
+                textShadow: outline1,
+                transform: i === activeWord ? "scale(1.18)" : "scale(1)",
+                transition: "color 0.08s, transform 0.08s",
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (styleKey === "impact_pop") {
+    return (
+      <div className={wrap}>
+        <div className="flex gap-0.5 items-end">
+          {words.map((word, i) => (
+            <span
+              key={i}
+              className="font-black text-[9px] leading-none inline-block px-0.5 rounded-sm"
+              style={{
+                color: i === activeWord ? "#000" : "white",
+                backgroundColor: i === activeWord ? "#00FFFF" : "transparent",
+                textShadow: i === activeWord ? "none" : outline1,
+                transform: i === activeWord ? "scale(1.18)" : "scale(1)",
+                transition: "background-color 0.08s, color 0.08s, transform 0.08s",
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (styleKey === "typewriter") {
+    return (
+      <div className={wrap}>
+        <span
+          className="text-[10px] text-white leading-none"
+          style={{ fontFamily: '"Courier New", monospace', textShadow: outline1 }}
+        >
+          {"Jangan".slice(0, charCount)}
+          <span className="opacity-70 animate-pulse">█</span>
+        </span>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, onClose, onSaved }: EditorModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const proxyVideoRef = useRef<HTMLVideoElement>(null);
@@ -551,7 +673,7 @@ export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, o
               </div>
             ) : (
             <>
-            {/* Caption Style Toggle */}
+            {/* Caption Style */}
             <div className="mb-6">
               <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Caption Style</h3>
               <div className="grid grid-cols-3 gap-2">
@@ -559,14 +681,14 @@ export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, o
                   <button
                     key={style.key}
                     onClick={() => setCaptionStyle(style.key)}
-                    className={`p-3 rounded-xl border text-left transition-all ${
+                    className={`p-2 rounded-xl border text-left transition-all ${
                       captionStyle === style.key
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-600/10"
-                        : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-600"
+                        ? "border-purple-500 bg-purple-600/10"
+                        : "border-zinc-700 hover:border-zinc-500"
                     }`}
                   >
-                    <div className="text-sm font-medium">{style.label}</div>
-                    <div className="text-xs text-zinc-500 mt-0.5">{style.desc}</div>
+                    <CaptionPreview styleKey={style.key} />
+                    <div className="text-xs font-semibold text-zinc-200 leading-tight">{style.label}</div>
                   </button>
                 ))}
               </div>
