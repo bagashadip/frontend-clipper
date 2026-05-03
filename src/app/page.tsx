@@ -39,6 +39,10 @@ function LandingPage() {
   const searchParams = useSearchParams();
   const { theme, toggleTheme } = useTheme();
 
+  const [loadingTier, setLoadingTier] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false);
+
   useEffect(() => {
     // Capture token from OAuth callback redirect
     const token = searchParams.get("token");
@@ -64,6 +68,67 @@ function LandingPage() {
       router.push("/app");
     } else {
       window.location.href = `${BACKEND_URL}/auth/login`;
+    }
+  };
+
+  const handleSubscribe = async (tierId: string, price: number) => {
+    if (!loggedIn) {
+      window.location.href = `${BACKEND_URL}/auth/login`;
+      return;
+    }
+    
+    try {
+      setLoadingTier(tierId);
+      setPaymentError(null);
+      setPaymentSuccess(false);
+
+      const token = localStorage.getItem("token");
+
+      // Call our backend API to generate the Midtrans snap token
+      const res = await fetch(`${BACKEND_URL}/api/payment/snap-token`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}) 
+        },
+        body: JSON.stringify({ tier_id: tierId, amount: price }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to generate payment token. Please try again.");
+      }
+
+      const data = await res.json();
+      const snapToken = data.snap_token;
+
+      if (!snapToken) {
+        throw new Error("Invalid token received from server.");
+      }
+
+      // Trigger Midtrans Snap Popup
+      window.snap.pay(snapToken, {
+        onSuccess: function (result: any) {
+          console.log("Payment success:", result);
+          setPaymentSuccess(true);
+        },
+        onPending: function (result: any) {
+          console.log("Payment pending:", result);
+          alert("Payment is pending. Please complete the transaction.");
+        },
+        onError: function (result: any) {
+          console.log("Payment error:", result);
+          setPaymentError("Payment failed. Please try again.");
+        },
+        onClose: function () {
+          console.log("Payment popup closed without finishing the payment");
+          setPaymentError("Payment was cancelled.");
+        },
+      });
+    } catch (err: any) {
+      console.error(err);
+      setPaymentError(err.message || "An unexpected error occurred.");
+    } finally {
+      setLoadingTier(null);
     }
   };
 
@@ -215,6 +280,19 @@ function LandingPage() {
             Mulai gratis, upgrade kapan saja
           </p>
 
+          {paymentError && (
+            <div className="mb-8 p-4 bg-red-100 text-red-700 rounded-lg text-center max-w-2xl mx-auto">
+              {paymentError}
+            </div>
+          )}
+
+          {paymentSuccess && (
+            <div className="mb-8 p-4 bg-green-100 text-green-800 rounded-lg text-center max-w-2xl mx-auto border border-green-200">
+              <Check className="inline-block h-5 w-5 mr-2" />
+              Payment successful! Your account is being upgraded. The changes will reflect shortly.
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Free Trial */}
             <div className="bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-2xl p-8 flex flex-col">
@@ -274,10 +352,18 @@ function LandingPage() {
                 ))}
               </ul>
               <button
-                onClick={handleLogin}
-                className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl transition-colors"
+                onClick={() => handleSubscribe("pro", 99000)}
+                disabled={loadingTier === "pro"}
+                className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
-                Upgrade to Pro
+                {loadingTier === "pro" ? (
+                  <>
+                    <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  "Upgrade to Pro"
+                )}
               </button>
             </div>
           </div>
