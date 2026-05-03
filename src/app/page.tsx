@@ -4,7 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Link as LinkIcon, Sparkles, Download, Check, ArrowRight, Loader2,
-  Sun, Moon, Captions, ScanFace, Crop, Zap, Mic, ShoppingBag, Gamepad2,
+  Sun, Moon, Captions, Crop, Zap, Mic, ShoppingBag, Gamepad2,
   ChevronDown, Play,
 } from "lucide-react";
 import Image from "next/image";
@@ -88,13 +88,6 @@ function LandingPage() {
     }
   };
 
-  const bentoFeatures = [
-    { icon: Captions, title: "AI Auto-Caption", desc: "Transkripsi Whisper yang akurat dengan animasi kata dinamis. Pilih dari 5+ style caption.", span: "md:col-span-2", accent: "from-purple-500/20 to-transparent" },
-    { icon: ScanFace, title: "Smart Face Tracking", desc: "Kamera virtual otomatis mengikuti pembicara utama.", span: "", accent: "from-pink-500/20 to-transparent" },
-    { icon: Crop, title: "Instant 9:16 Crop", desc: "Konversi landscape ke portrait secara instan tanpa distorsi.", span: "", accent: "from-blue-500/20 to-transparent" },
-    { icon: Zap, title: "AI Virality Score", desc: "Setiap klip diberi skor 0–100 berdasarkan potensi viral-nya.", span: "", accent: "from-yellow-500/20 to-transparent" },
-    { icon: Download, title: "Export Langsung", desc: "Download 1080p atau ekspor ke TikTok, Reels & Shorts dengan satu klik.", span: "md:col-span-2", accent: "from-green-500/20 to-transparent" },
-  ];
 
   const useCases = [
     { icon: Mic, label: "Podcaster", color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20", desc: "Ubah episode podcast panjang menjadi highlight reels yang menarik untuk promosi." },
@@ -222,7 +215,7 @@ function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {[
               { icon: Captions, title: "AI Auto-Caption", desc: "Transkripsi Whisper yang akurat dengan animasi kata dinamis. Pilih dari 5+ style caption yang berbeda.", accent: "from-purple-500/20 to-transparent", span: "md:col-span-2" },
-              { icon: ScanFace, title: "Smart Face Tracking", desc: "Kamera virtual otomatis mengikuti pembicara utama agar selalu berada di tengah frame.", accent: "from-pink-500/20 to-transparent", span: "" },
+              { icon: Zap, title: "Cloud GPU Rendering", desc: "Proses rendering video vertikal super cepat ditenagai oleh infrastruktur komputasi tinggi berbasis GCP.", accent: "from-pink-500/20 to-transparent", span: "" },
             ].map((f) => (
               <div
                 key={f.title}
