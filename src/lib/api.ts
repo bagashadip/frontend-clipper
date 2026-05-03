@@ -145,3 +145,18 @@ export async function getQuota(): Promise<{ quota_seconds_remaining: number; sub
   if (!res.ok) throw new Error("Failed to fetch quota");
   return res.json();
 }
+
+export async function fetchSnapToken(tierId: string, amount: number): Promise<string> {
+  const res = await fetch(`${API_BASE}/payment/snap-token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ tier_id: tierId, amount }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to generate payment token. Please try again.");
+  }
+  const data = await res.json();
+  if (!data.snap_token) throw new Error("Invalid token received from server.");
+  return data.snap_token;
+}

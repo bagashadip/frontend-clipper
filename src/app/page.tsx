@@ -13,6 +13,7 @@ import {
   Moon,
 } from "lucide-react";
 import Image from "next/image";
+import { fetchSnapToken } from "@/lib/api";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -97,30 +98,7 @@ function LandingPage() {
       setPaymentError(null);
       setPaymentSuccess(false);
 
-      setPaymentSuccess(false);
-
-      // Call our backend API to generate the Midtrans snap token
-      const res = await fetch(`${BACKEND_URL}/api/payment/snap-token`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${currentToken}`
-        },
-        body: JSON.stringify({ tier_id: tierId, amount: price }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to generate payment token. Please try again.");
-      }
-
-      const data = await res.json();
-      const snapToken = data.snap_token;
-
-      if (!snapToken) {
-        throw new Error("Invalid token received from server.");
-      }
-
-      // Trigger Midtrans Snap Popup
+      const snapToken = await fetchSnapToken(tierId, price);
       window.snap.pay(snapToken, {
         onSuccess: function (result: any) {
           console.log("Payment success:", result);
