@@ -48,10 +48,22 @@ function LandingPage() {
     const token = searchParams.get("token");
     if (token) {
       localStorage.setItem("token", token);
-      // Clean URL
       window.history.replaceState({}, "", "/");
     }
-    setLoggedIn(!!localStorage.getItem("token"));
+
+    const isLoggedIn = !!localStorage.getItem("token");
+    setLoggedIn(isLoggedIn);
+
+    // Resume pending purchase after OAuth redirect
+    if (isLoggedIn) {
+      const pendingPurchase = localStorage.getItem("pending_purchase");
+      if (pendingPurchase) {
+        localStorage.removeItem("pending_purchase");
+        const { tier_id, price } = JSON.parse(pendingPurchase);
+        // Delay to allow Snap JS to load
+        setTimeout(() => handleSubscribe(tier_id, price), 1500);
+      }
+    }
   }, [searchParams]);
 
   const handleGenerate = () => {
@@ -73,6 +85,8 @@ function LandingPage() {
 
   const handleSubscribe = async (tierId: string, price: number) => {
     if (!loggedIn) {
+      // Save purchase intent so we can resume after login
+      localStorage.setItem("pending_purchase", JSON.stringify({ tier_id: tierId, price }));
       window.location.href = `${BACKEND_URL}/auth/login`;
       return;
     }
