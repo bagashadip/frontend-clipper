@@ -84,7 +84,8 @@ function LandingPage() {
   };
 
   const handleSubscribe = async (tierId: string, price: number) => {
-    if (!loggedIn) {
+    const currentToken = localStorage.getItem("token");
+    if (!currentToken) {
       // Save purchase intent so we can resume after login
       localStorage.setItem("pending_purchase", JSON.stringify({ tier_id: tierId, price }));
       window.location.href = `${BACKEND_URL}/auth/login`;
@@ -96,14 +97,14 @@ function LandingPage() {
       setPaymentError(null);
       setPaymentSuccess(false);
 
-      const token = localStorage.getItem("token");
+      setPaymentSuccess(false);
 
       // Call our backend API to generate the Midtrans snap token
       const res = await fetch(`${BACKEND_URL}/api/payment/snap-token`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {}) 
+          "Authorization": `Bearer ${currentToken}`
         },
         body: JSON.stringify({ tier_id: tierId, amount: price }),
       });
