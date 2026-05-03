@@ -217,15 +217,43 @@ function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">Semua yang Kamu Butuhkan</h2>
           <p className="text-zinc-500 dark:text-zinc-400 text-center mb-12 max-w-lg mx-auto">Teknologi AI terdepan dalam satu platform yang simpel.</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {bentoFeatures.map((f) => (
+
+          {/* Row 1: wide (2/3) + narrow (1/3) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            {[
+              { icon: Captions, title: "AI Auto-Caption", desc: "Transkripsi Whisper yang akurat dengan animasi kata dinamis. Pilih dari 5+ style caption yang berbeda.", accent: "from-purple-500/20 to-transparent", span: "md:col-span-2" },
+              { icon: ScanFace, title: "Smart Face Tracking", desc: "Kamera virtual otomatis mengikuti pembicara utama agar selalu berada di tengah frame.", accent: "from-pink-500/20 to-transparent", span: "" },
+            ].map((f) => (
               <div
                 key={f.title}
-                className={`${f.span} group relative bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-2xl p-7 overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:border-purple-400 dark:hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 cursor-default`}
+                className={`${f.span} group relative h-full bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-2xl p-7 overflow-hidden flex flex-col transition-all duration-300 hover:scale-[1.015] hover:border-purple-400 dark:hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 cursor-default`}
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                <div className="relative z-10">
-                  <div className="w-11 h-11 rounded-xl bg-purple-600/10 flex items-center justify-center mb-4 group-hover:bg-purple-600/20 transition-colors">
+                <div className="relative z-10 flex flex-col flex-1">
+                  <div className="w-11 h-11 rounded-xl bg-purple-600/10 flex items-center justify-center mb-4 group-hover:bg-purple-600/20 transition-colors shrink-0">
+                    <f.icon className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <h3 className="font-bold text-zinc-900 dark:text-white mb-2">{f.title}</h3>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Row 2: three equal columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { icon: Crop, title: "Instant 9:16 Crop", desc: "Konversi landscape ke portrait secara instan tanpa distorsi.", accent: "from-blue-500/20 to-transparent" },
+              { icon: Zap, title: "AI Virality Score", desc: "Setiap klip diberi skor 0–100 berdasarkan potensi viral-nya.", accent: "from-yellow-500/20 to-transparent" },
+              { icon: Download, title: "Export Langsung", desc: "Download 1080p atau ekspor ke TikTok, Reels & Shorts dengan satu klik.", accent: "from-green-500/20 to-transparent" },
+            ].map((f) => (
+              <div
+                key={f.title}
+                className="group relative h-full bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-2xl p-7 overflow-hidden flex flex-col transition-all duration-300 hover:scale-[1.015] hover:border-purple-400 dark:hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 cursor-default"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${f.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                <div className="relative z-10 flex flex-col flex-1">
+                  <div className="w-11 h-11 rounded-xl bg-purple-600/10 flex items-center justify-center mb-4 group-hover:bg-purple-600/20 transition-colors shrink-0">
                     <f.icon className="w-5 h-5 text-purple-400" />
                   </div>
                   <h3 className="font-bold text-zinc-900 dark:text-white mb-2">{f.title}</h3>
@@ -236,6 +264,7 @@ function LandingPage() {
           </div>
         </div>
       </section>
+
 
       {/* ── Use Cases ── */}
       <section className="px-6 py-24">
