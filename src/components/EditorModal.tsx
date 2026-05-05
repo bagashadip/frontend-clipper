@@ -488,21 +488,21 @@ export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, o
                             <div
                               className="absolute top-0 bottom-0 left-0 bg-black/60"
                               style={{
-                                width: `${Math.max(0, (cropXPercent / 100) * (1 - 9 / 16) * 100)}%`,
+                                width: `${Math.max(0, (cropXPercent / 100) * (1 - 81 / 256) * 100)}%`,
                               }}
                             />
                             <div
                               className="absolute top-0 bottom-0 right-0 bg-black/60"
                               style={{
-                                width: `${Math.max(0, ((100 - cropXPercent) / 100) * (1 - 9 / 16) * 100)}%`,
+                                width: `${Math.max(0, ((100 - cropXPercent) / 100) * (1 - 81 / 256) * 100)}%`,
                               }}
                             />
                             {/* Crop frame border */}
                             <div
                               className="absolute top-0 bottom-0 border-2 border-purple-500/80 border-dashed"
                               style={{
-                                width: `${(9 / 16) * 100}%`,
-                                left: `${(cropXPercent / 100) * (1 - 9 / 16) * 100}%`,
+                                width: `${(81 / 256) * 100}%`,
+                                left: `${(cropXPercent / 100) * (1 - 81 / 256) * 100}%`,
                               }}
                             >
                               <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-purple-600/80 text-[10px] text-white px-1.5 py-0.5 rounded">
