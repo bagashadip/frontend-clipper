@@ -172,15 +172,16 @@ function LandingPage() {
               {/* Before: Landscape */}
               <div className="flex flex-col items-center gap-2 flex-1">
                 <span className="text-xs text-zinc-500 font-semibold tracking-widest uppercase">Before</span>
-                <div className="w-full aspect-video bg-zinc-800 rounded-xl border border-white/5 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 to-zinc-900" />
-                  <Play className="w-12 h-12 text-zinc-600 relative z-10" />
-                  <div className="absolute bottom-3 left-3 text-[10px] text-zinc-500 font-mono">16:9 • 47:32</div>
+                <div className="w-full aspect-video bg-zinc-800 rounded-xl border border-white/5 flex items-center justify-center relative overflow-hidden group">
+                  <Image src="/assets/sections/hero-section-before.jpeg" alt="Before landscape video" fill className="object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <Play className="w-12 h-12 text-white/80 relative z-10 drop-shadow-md" />
+                  <div className="absolute bottom-3 left-3 text-[10px] text-white/90 font-mono z-10 bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm">16:9 • 47:32</div>
                 </div>
               </div>
 
               {/* Arrow */}
-              <div className="flex flex-col items-center gap-1 shrink-0">
+              <div className="flex flex-col items-center gap-1 shrink-0 px-2">
                 <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/40">
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
@@ -190,15 +191,22 @@ function LandingPage() {
               {/* After: Portrait clips */}
               <div className="flex flex-col items-center gap-2">
                 <span className="text-xs text-zinc-500 font-semibold tracking-widest uppercase">After</span>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-16 aspect-[9/16] bg-zinc-800 rounded-lg border border-purple-500/30 flex flex-col items-center justify-end p-1.5 relative overflow-hidden">
-                      <div className={`absolute inset-0 bg-gradient-to-b ${i === 2 ? "from-purple-900/50" : "from-zinc-700/50"} to-zinc-900`} />
-                      <div className="relative z-10 w-full bg-purple-600/80 rounded text-[7px] text-white text-center py-0.5 font-bold">#{i === 1 ? "viral" : i === 2 ? "fyp" : "shorts"}</div>
+                <div className="flex gap-2 sm:gap-3">
+                  {[
+                    { src: "/assets/sections/hero-section1-after.png", tag: "#viral" },
+                    { src: "/assets/sections/hero-section2-after.png", tag: "#fyp" },
+                    { src: "/assets/sections/hero-section3-after.png", tag: "#shorts" }
+                  ].map((clip, i) => (
+                    <div key={i} className={`w-16 sm:w-20 aspect-[9/16] bg-zinc-800 rounded-lg border flex flex-col items-center justify-end p-1.5 relative overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl ${i === 1 ? 'border-purple-500/50 shadow-lg shadow-purple-500/20 -translate-y-1' : 'border-white/10 hover:border-purple-500/30'}`}>
+                      <Image src={clip.src} alt={`After portrait clip ${i+1}`} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <div className="relative z-10 w-full bg-black/50 backdrop-blur-[2px] rounded text-[8px] text-white text-center py-1 font-bold">
+                        {clip.tag}
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div className="text-[10px] text-zinc-500 font-mono">9:16 • 3 clips</div>
+                <div className="text-[10px] text-zinc-500 font-mono mt-1">9:16 • 3 clips</div>
               </div>
             </div>
           </div>
