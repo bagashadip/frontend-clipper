@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import { fetchSnapToken } from "@/lib/api";
 import { useTheme } from "@/components/ThemeProvider";
+import { FadeIn, FadeInStagger, FadeInStaggerItem } from "@/components/FadeIn";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
@@ -119,6 +120,7 @@ function LandingPage() {
           <div className="flex items-center gap-6">
             <a href="#features" className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors hidden sm:block">Features</a>
             <a href="#pricing" className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors hidden sm:block">Pricing</a>
+            <a href="#faq" className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors hidden sm:block">FAQ</a>
             <button onClick={toggleTheme} className="p-2 text-zinc-500 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-zinc-100 dark:hover:bg-white/5 rounded-lg transition-colors" title="Toggle theme">
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -131,8 +133,9 @@ function LandingPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <section className="flex flex-col items-center justify-center px-6 pt-24 pb-16 text-center relative overflow-hidden">
+      <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(147,51,234,0.15),transparent)]" />
+        <FadeIn className="flex flex-col items-center justify-center px-6 pt-24 pb-16 text-center">
         <div className="flex items-center gap-2 bg-purple-600/10 border border-purple-500/20 text-purple-400 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 animate-pulse">
           <Sparkles className="w-3.5 h-3.5" /> Powered by AI — Whisper + Gemini
         </div>
@@ -193,16 +196,13 @@ function LandingPage() {
                 <span className="text-xs text-zinc-500 font-semibold tracking-widest uppercase">After</span>
                 <div className="flex gap-2 sm:gap-3">
                   {[
-                    { src: "/assets/sections/hero-section1-after.png", tag: "#viral" },
-                    { src: "/assets/sections/hero-section2-after.png", tag: "#fyp" },
-                    { src: "/assets/sections/hero-section3-after.png", tag: "#shorts" }
+                    { src: "/assets/sections/hero-section1-after.png" },
+                    { src: "/assets/sections/hero-section2-after.png" },
+                    { src: "/assets/sections/hero-section3-after.png" }
                   ].map((clip, i) => (
                     <div key={i} className={`w-16 sm:w-20 aspect-[9/16] bg-zinc-800 rounded-lg border flex flex-col items-center justify-end p-1.5 relative overflow-hidden transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl ${i === 1 ? 'border-purple-500/50 shadow-lg shadow-purple-500/20 -translate-y-1' : 'border-white/10 hover:border-purple-500/30'}`}>
-                      <Image src={clip.src} alt={`After portrait clip ${i+1}`} fill className="object-cover" />
+                      <Image src={clip.src} alt={`After portrait clip ${i + 1}`} fill className="object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                      <div className="relative z-10 w-full bg-black/50 backdrop-blur-[2px] rounded text-[8px] text-white text-center py-1 font-bold">
-                        {clip.tag}
-                      </div>
                     </div>
                   ))}
                 </div>
@@ -211,21 +211,22 @@ function LandingPage() {
             </div>
           </div>
         </div>
+        </FadeIn>
       </section>
 
       {/* ── Bento Grid Features ── */}
       <section id="features" className="px-6 py-24 bg-zinc-50 dark:bg-white/[0.015]">
-        <div className="max-w-5xl mx-auto">
+        <FadeIn className="max-w-5xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">Semua yang Kamu Butuhkan</h2>
           <p className="text-zinc-500 dark:text-zinc-400 text-center mb-12 max-w-lg mx-auto">Teknologi AI terdepan dalam satu platform yang simpel.</p>
 
           {/* Row 1: wide (2/3) + narrow (1/3) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <FadeInStagger className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             {[
               { icon: Captions, title: "AI Auto-Caption", desc: "Transkripsi Whisper yang akurat dengan animasi kata dinamis. Pilih dari 5+ style caption yang berbeda.", accent: "from-purple-500/20 to-transparent", span: "md:col-span-2" },
               { icon: Zap, title: "Cloud GPU Rendering", desc: "Proses rendering video vertikal super cepat ditenagai oleh infrastruktur komputasi tinggi berbasis GCP.", accent: "from-pink-500/20 to-transparent", span: "" },
             ].map((f) => (
-              <div
+              <FadeInStaggerItem
                 key={f.title}
                 className={`${f.span} group relative h-full bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-2xl p-7 overflow-hidden flex flex-col transition-all duration-300 hover:scale-[1.015] hover:border-purple-400 dark:hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 cursor-default`}
               >
@@ -237,18 +238,18 @@ function LandingPage() {
                   <h3 className="font-bold text-zinc-900 dark:text-white mb-2">{f.title}</h3>
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{f.desc}</p>
                 </div>
-              </div>
+              </FadeInStaggerItem>
             ))}
-          </div>
+          </FadeInStagger>
 
           {/* Row 2: three equal columns */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FadeInStagger className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { icon: Crop, title: "Instant 9:16 Crop", desc: "Konversi landscape ke portrait secara instan tanpa distorsi.", accent: "from-blue-500/20 to-transparent" },
               { icon: Zap, title: "AI Virality Score", desc: "Setiap klip diberi skor 0–100 berdasarkan potensi viral-nya.", accent: "from-yellow-500/20 to-transparent" },
               { icon: Download, title: "Export Langsung", desc: "Download 1080p atau ekspor ke TikTok, Reels & Shorts dengan satu klik.", accent: "from-green-500/20 to-transparent" },
             ].map((f) => (
-              <div
+              <FadeInStaggerItem
                 key={f.title}
                 className="group relative h-full bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/5 rounded-2xl p-7 overflow-hidden flex flex-col transition-all duration-300 hover:scale-[1.015] hover:border-purple-400 dark:hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10 cursor-default"
               >
@@ -260,16 +261,16 @@ function LandingPage() {
                   <h3 className="font-bold text-zinc-900 dark:text-white mb-2">{f.title}</h3>
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{f.desc}</p>
                 </div>
-              </div>
+              </FadeInStaggerItem>
             ))}
-          </div>
-        </div>
+          </FadeInStagger>
+        </FadeIn>
       </section>
 
 
       {/* ── Use Cases ── */}
       <section className="px-6 py-24">
-        <div className="max-w-5xl mx-auto">
+        <FadeIn className="max-w-5xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">Dibuat untuk Siapa?</h2>
           <p className="text-zinc-500 dark:text-zinc-400 text-center mb-12 max-w-lg mx-auto">ZClip dirancang untuk siapapun yang ingin tumbuh di media sosial.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -283,11 +284,11 @@ function LandingPage() {
               </div>
             ))}
           </div>
-        </div>
+        </FadeIn>
       </section>
 
       {/* ── FAQ ── */}
-      <section className="px-6 py-24 bg-zinc-50 dark:bg-white/[0.015]">
+      <section id="faq" className="px-6 py-24 bg-zinc-50 dark:bg-white/[0.015]">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-2xl sm:text-3xl font-bold text-center mb-3">Pertanyaan Umum</h2>
           <p className="text-zinc-500 dark:text-zinc-400 text-center mb-12">Semua yang ingin kamu ketahui tentang ZClip.</p>
