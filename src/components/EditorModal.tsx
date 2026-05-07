@@ -69,7 +69,7 @@ function CaptionPreview({ styleKey }: { styleKey: string }) {
 
   const outline1 = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
   const outline2 = "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, -1px 0 0 #000, 1px 0 0 #000";
-  const wrap = "w-full h-12 rounded-lg bg-black/70 flex items-end justify-center pb-1.5 mb-2 overflow-hidden";
+  const wrap = "w-full h-10 rounded-lg bg-black/70 flex items-end justify-center pb-1 mb-1.5 overflow-hidden";
 
   if (styleKey === "none") {
     return (
@@ -540,7 +540,7 @@ export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, o
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-auto flex flex-col md:flex-row">
+        <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
           {/* Left: Video Player */}
           <div className="md:w-1/2 p-6 flex flex-col items-center">
             {/* Crop Edit Mode: proxy with overlay */}
@@ -773,8 +773,8 @@ export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, o
             </div>
           </div>
 
-          {/* Right: Transcript Editor & Style Toggle */}
-          <div className="md:w-1/2 p-6 border-t md:border-t-0 md:border-l border-zinc-200 dark:border-zinc-800 flex flex-col">
+          {/* Right: Caption Style, Quality & Transcript Editor */}
+          <div className="md:w-1/2 p-6 border-t md:border-t-0 md:border-l border-zinc-200 dark:border-zinc-800 flex flex-col overflow-y-auto max-h-full">
             {cropEditMode ? (
               <div className="flex-1 flex flex-col items-center justify-center text-center text-zinc-500 px-6">
                 <Crop className="w-10 h-10 mb-3 text-purple-400/50" />
@@ -797,19 +797,19 @@ export default function EditorModal({ clip, subscriptionTier, maxSourceHeight, o
             {/* Caption Style */}
             <div className="mb-6">
               <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-3">Caption Style</h3>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-1.5">
                 {CAPTION_STYLES.map((style) => (
                   <button
                     key={style.key}
                     onClick={() => setCaptionStyle(style.key)}
-                    className={`p-2 rounded-xl border text-left transition-all ${
+                    className={`p-1.5 rounded-lg border text-left transition-all ${
                       captionStyle === style.key
                         ? "border-purple-500 bg-purple-600/10"
                         : "border-zinc-700 hover:border-zinc-500"
                     }`}
                   >
                     <CaptionPreview styleKey={style.key} />
-                    <div className="text-xs font-semibold text-zinc-200 leading-tight">{style.label}</div>
+                    <div className="text-[10px] font-semibold text-zinc-200 leading-tight text-center">{style.label}</div>
                   </button>
                 ))}
               </div>
