@@ -34,8 +34,13 @@ const CAPTION_STYLES = [
   { key: "classic" as const, label: "Classic", desc: "White text, black stroke" },
   { key: "hormozi" as const, label: "Hormozi Style", desc: "Yellow bold, heavy stroke" },
   { key: "hormozi_dynamic" as const, label: "Hormozi Dynamic", desc: "Word-by-word animated highlight" },
-  { key: "impact_pop" as const, label: "Impact Pop", desc: "Green highlight, orange background" },
-  { key: "typewriter" as const, label: "Typewriter", desc: "Letter-by-letter reveal, monospace font" },
+  { key: "impact_pop" as const, label: "Impact Pop", desc: "Cyan burst pop animation" },
+  { key: "typewriter" as const, label: "Typewriter", desc: "Letter-by-letter reveal, monospace" },
+  { key: "kenergy" as const, label: "Kenergy", desc: "Aggressive orange-red pop, finance vibe" },
+  { key: "midnight" as const, label: "Midnight", desc: "Neon green glow, dark cyberpunk" },
+  { key: "cleanboss" as const, label: "Clean Boss", desc: "Minimalist large, subtle scale" },
+  { key: "staccato" as const, label: "Staccato", desc: "One word punch-in, comedy timing" },
+  { key: "serenity" as const, label: "Serenity", desc: "Pink-purple soft glow, aesthetic" },
   { key: "none" as const, label: "No Captions", desc: "Clean video only" },
 ];
 
@@ -46,7 +51,7 @@ function CaptionPreview({ styleKey }: { styleKey: string }) {
   const [charCount, setCharCount] = useState(0);
 
   useEffect(() => {
-    if (styleKey !== "hormozi_dynamic" && styleKey !== "impact_pop") return;
+    if (styleKey !== "hormozi_dynamic" && styleKey !== "impact_pop" && styleKey !== "kenergy" && styleKey !== "midnight" && styleKey !== "cleanboss" && styleKey !== "staccato" && styleKey !== "serenity") return;
     const t = setInterval(() => setActiveWord((i) => (i + 1) % 3), 700);
     return () => clearInterval(t);
   }, [styleKey]);
@@ -154,6 +159,122 @@ function CaptionPreview({ styleKey }: { styleKey: string }) {
           {"Jangan".slice(0, charCount)}
           <span className="opacity-70 animate-pulse">█</span>
         </span>
+      </div>
+    );
+  }
+
+  if (styleKey === "kenergy") {
+    return (
+      <div className={wrap}>
+        <div className="flex gap-0.5 items-end">
+          {words.map((word, i) => (
+            <span
+              key={i}
+              className="font-black text-[9px] leading-none inline-block uppercase"
+              style={{
+                color: i === activeWord ? "#FF4500" : "white",
+                textShadow: i === activeWord
+                  ? "-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000"
+                  : outline1,
+                transform: i === activeWord ? "scale(1.15)" : "scale(1)",
+                transition: "color 0.05s, transform 0.06s",
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (styleKey === "midnight") {
+    return (
+      <div className={`${wrap} bg-black/90`}>
+        <div className="flex gap-0.5 items-end">
+          {words.map((word, i) => (
+            <span
+              key={i}
+              className="font-black text-[9px] leading-none inline-block"
+              style={{
+                color: i === activeWord ? "#00FF88" : "#AAAAAA",
+                textShadow: i === activeWord
+                  ? "0 0 6px #00FF88, 0 0 12px #00FF88"
+                  : "none",
+                transform: i === activeWord ? "scale(1.08)" : "scale(1)",
+                transition: "color 0.1s, text-shadow 0.1s, transform 0.1s",
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (styleKey === "cleanboss") {
+    return (
+      <div className={`${wrap} bg-black/60`}>
+        <div className="flex gap-1 items-end">
+          {words.map((word, i) => (
+            <span
+              key={i}
+              className="text-[9px] leading-none inline-block"
+              style={{
+                color: i === activeWord ? "white" : "#CCCCCC",
+                textShadow: "0 1px 3px rgba(0,0,0,0.6)",
+                fontWeight: i === activeWord ? 600 : 400,
+                transform: i === activeWord ? "scale(1.06)" : "scale(1)",
+                transition: "color 0.12s, transform 0.12s",
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (styleKey === "staccato") {
+    return (
+      <div className={wrap}>
+        <span
+          className="font-black text-[10px] leading-none text-white inline-block"
+          style={{
+            textShadow: outline2,
+            transform: "scale(1.15)",
+            animation: "none",
+          }}
+        >
+          {words[activeWord]}
+        </span>
+      </div>
+    );
+  }
+
+  if (styleKey === "serenity") {
+    return (
+      <div className={`${wrap} bg-black/50`}>
+        <div className="flex gap-0.5 items-end">
+          {words.map((word, i) => (
+            <span
+              key={i}
+              className="text-[9px] leading-none inline-block"
+              style={{
+                color: i === activeWord ? "#FF69B4" : "#E8D5E0",
+                textShadow: i === activeWord
+                  ? "0 0 4px #FF69B4, 0 0 8px #FF69B4"
+                  : "0 1px 2px rgba(0,0,0,0.5)",
+                transform: i === activeWord ? "scale(1.04)" : "scale(1)",
+                transition: "color 0.2s, text-shadow 0.2s, transform 0.2s",
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
       </div>
     );
   }

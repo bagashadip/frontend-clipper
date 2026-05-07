@@ -17,7 +17,7 @@ export interface Clip {
   end_time: number;
   virality_score: number | null;
   reasoning: string | null;
-  caption_style: "classic" | "hormozi" | "hormozi_dynamic" | "impact_pop" | "typewriter" | "none";
+  caption_style: "classic" | "hormozi" | "hormozi_dynamic" | "impact_pop" | "typewriter" | "none" | "kenergy" | "midnight" | "cleanboss" | "staccato" | "serenity";
   quality: "480p" | "720p" | "1080p";
   export_format: "9:16" | "16:9";
   crop_x_percent: number;
