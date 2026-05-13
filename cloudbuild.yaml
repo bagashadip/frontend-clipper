@@ -8,7 +8,7 @@
 #   _REGION              e.g. asia-southeast1
 #   _REPO                e.g. clipper-repo  (Artifact Registry repo name)
 #   _SERVICE             e.g. clipper-frontend  (Cloud Run service name)
-#   _BACKEND_URL         e.g. http://34.177.101.239:8000
+#   _BACKEND_URL         e.g. https://costs-real-vegetables-typical.trycloudflare.com
 #
 # Image tags:
 #   ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPO}/frontend:${SHORT_SHA}
@@ -19,7 +19,7 @@ substitutions:
   _REGION: asia-southeast1
   _REPO: clipper-repo
   _SERVICE: clipper-frontend
-  _BACKEND_URL: http://34.177.101.239:8000
+  _BACKEND_URL: https://costs-real-vegetables-typical.trycloudflare.com
 
 options:
   logging: CLOUD_LOGGING_ONLY

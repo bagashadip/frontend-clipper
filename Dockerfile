@@ -19,8 +19,8 @@ COPY . .
 
 # Bake the production backend URL at build time.
 # Can be overridden by Cloud Build substitution:
-#   --build-arg NEXT_PUBLIC_BACKEND_URL=http://...
-ARG NEXT_PUBLIC_BACKEND_URL=http://34.177.101.239:8000
+#   --build-arg NEXT_PUBLIC_BACKEND_URL=https://...
+ARG NEXT_PUBLIC_BACKEND_URL=https://costs-real-vegetables-typical.trycloudflare.com
 ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 
 RUN npm run build
