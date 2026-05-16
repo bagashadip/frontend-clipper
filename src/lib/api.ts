@@ -1,6 +1,13 @@
 import { SourceVideo, ProcessURLResponse, Clip } from "./types";
 
-const API_BASE = "/api";
+// When NEXT_PUBLIC_BACKEND_URL is set, the browser calls the backend
+// directly. Otherwise we fall back to the Next.js rewrite proxy at /api.
+// Direct calls are more reliable: skipping the proxy avoids Next.js's
+// default fetch timeouts that bite on slow yt-dlp metadata calls (which
+// can take 30+ seconds for uncached videos).
+const _BACKEND = (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(/\/+$/, "");
+const API_BASE = _BACKEND ? `${_BACKEND}/api` : "/api";
+const AUTH_BASE = _BACKEND ? `${_BACKEND}/auth` : "/auth";
 
 function authHeaders(): Record<string, string> {
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -197,7 +204,7 @@ export interface UserProfile {
 }
 
 export async function getMe(): Promise<UserProfile> {
-  const res = await fetch(`/auth/me`, {
+  const res = await fetch(`${AUTH_BASE}/me`, {
     headers: authHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch profile");
