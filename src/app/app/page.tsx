@@ -122,14 +122,22 @@ function Home() {
     }
   };
 
-  // On mount (and when projects load), select project from URL param
+  // On mount (and when projects load), select project from URL param.
+  // Use a ref to ensure this runs at most once per project ID — without it,
+  // every poll-driven `setProjects` would re-trigger selectProject and cause
+  // a skeleton flash mid-render.
+  const initialSelectedRef = useRef<string | null>(null);
   useEffect(() => {
     const projectId = searchParams.get("project");
-    if (projectId && projects.length > 0 && !submittedRef.current) {
-      const found = projects.find((p) => p.id === projectId);
-      if (found) {
-        selectProject(found);
-      }
+    if (!projectId) return;
+    if (submittedRef.current) return;
+    if (initialSelectedRef.current === projectId) return;
+    if (projects.length === 0) return;
+
+    const found = projects.find((p) => p.id === projectId);
+    if (found) {
+      initialSelectedRef.current = projectId;
+      selectProject(found);
     }
   }, [projects, searchParams]);
 
@@ -191,13 +199,21 @@ function Home() {
   const selectProject = async (project: SourceVideo) => {
     stopPolling();
     setError(null);
+
+    // Show the existing data immediately. Only show the skeleton if we
+    // genuinely have nothing to display (no project yet selected, or the
+    // selected one has no clips). This prevents the skeleton flash when
+    // navigating between already-loaded projects or refreshing the page
+    // while a clip is rendering.
+    const hasUsableData =
+      activeProject?.id === project.id || project.clips !== undefined;
     setActiveProject(project);
-    setLoadingProject(true);
+    setLoadingProject(!hasUsableData);
 
     // Update URL
     router.replace(`/app?project=${project.id}`, { scroll: false });
 
-    // Always fetch fresh data
+    // Always fetch fresh data in the background
     try {
       const fresh = await getVideo(project.id);
       setActiveProject(fresh);
@@ -211,7 +227,8 @@ function Home() {
         );
 
       if (hasActiveTasks) {
-        setLoading(true);
+        // Don't toggle the global "loading" overlay — clips are already
+        // visible with their per-card rendering states. We just want polling.
         pollVideo(fresh.id);
       } else {
         setLoading(false);
