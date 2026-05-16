@@ -20,13 +20,14 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import URLInput from "@/components/URLInput";
+import SubmitWizard from "@/components/SubmitWizard";
 import ProgressBar from "@/components/ProgressBar";
 import ClipGrid from "@/components/ClipGrid";
 import EditorModal from "@/components/EditorModal";
 import { SidebarProjectSkeleton, ProjectDetailSkeleton, ClipGridSkeleton, Skeleton } from "@/components/Skeleton";
 import { useTheme } from "@/components/ThemeProvider";
 import { processURL, getVideo, getQuota, getMe, listVideos } from "@/lib/api";
-import type { UserProfile } from "@/lib/api";
+import type { UserProfile, ProcessURLPayload, CategoryId, CaptionStyleId, Resolution } from "@/lib/api";
 import { SourceVideo, Clip } from "@/lib/types";
 
 const BACKEND_URL =
@@ -182,6 +183,7 @@ function Home() {
     const urlParam = searchParams.get("url");
     if (urlParam && !submittedRef.current) {
       submittedRef.current = true;
+      // Legacy deeplink path: skip the wizard, use defaults
       handleSubmit(urlParam);
     }
   }, [searchParams]);
@@ -221,7 +223,14 @@ function Home() {
     }
   };
 
-  const handleSubmit = async (url: string) => {
+  const handleSubmit = async (
+    payload: string | {
+      youtube_url: string;
+      selected_categories: CategoryId[];
+      caption_style: CaptionStyleId;
+      resolution: Resolution;
+    }
+  ) => {
     setError(null);
     setLoading(true);
     setActiveProject(null);
@@ -230,7 +239,9 @@ function Home() {
     submittedRef.current = true;
 
     try {
-      const result = await processURL(url);
+      const result = await processURL(
+        typeof payload === "string" ? payload : (payload as ProcessURLPayload)
+      );
       const data = await getVideo(result.video_id);
       setActiveProject(data);
 
@@ -499,10 +510,10 @@ function Home() {
             </section>
           )}
 
-          {/* No project selected — show URL input */}
+          {/* No project selected — show wizard */}
           {!activeProject && !loading && !loadingProjects && (
-            <section className="flex flex-col items-center justify-center pt-24 pb-16 px-6">
-              <div className="flex items-center gap-3 mb-6">
+            <section className="flex flex-col items-center pt-16 pb-16 px-6">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="p-3 bg-purple-600/20 rounded-2xl">
                   <Image src="/assets/zclip-icon.png" alt="Logo" width={48} height={48} className="w-18 h-18" />
                 </div>
@@ -510,15 +521,19 @@ function Home() {
                   New <span className="text-purple-400">Project</span>
                 </h1>
               </div>
-              <p className="text-zinc-500 dark:text-zinc-400 text-base mb-10 text-center max-w-xl">
-                Paste a YouTube URL to create a new project. AI will find the
-                most viral moments and generate ready-to-post clips.
+              <p className="text-zinc-500 dark:text-zinc-400 text-base mb-8 text-center max-w-xl">
+                Configure your clip generation in 4 quick steps. AI will find
+                the most viral moments and render ready-to-post clips.
               </p>
 
-              <URLInput onSubmit={handleSubmit} isLoading={loading} />
+              <SubmitWizard
+                subscriptionTier={subscriptionTier}
+                onSubmit={handleSubmit}
+                isSubmitting={loading}
+              />
 
               {error && (
-                <div className="mt-6 flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-3 rounded-xl">
+                <div className="mt-6 flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-3 rounded-xl max-w-2xl w-full">
                   <AlertCircle className="w-5 h-5 shrink-0" />
                   <span className="text-sm">{error}</span>
                 </div>

@@ -7,11 +7,77 @@ function authHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export async function processURL(youtube_url: string): Promise<ProcessURLResponse> {
+// ── Wizard types ──────────────────────────────────────────────────────────
+
+export type CategoryId =
+  | "humor"
+  | "shock"
+  | "controversy"
+  | "emotional"
+  | "insight"
+  | "motivation";
+
+export const ALL_CATEGORIES: CategoryId[] = [
+  "humor",
+  "shock",
+  "controversy",
+  "emotional",
+  "insight",
+  "motivation",
+];
+
+export type CaptionStyleId =
+  | "classic"
+  | "hormozi"
+  | "hormozi_dynamic"
+  | "impact_pop"
+  | "typewriter"
+  | "kenergy"
+  | "midnight"
+  | "cleanboss"
+  | "staccato"
+  | "serenity"
+  | "none";
+
+export type Resolution = 480 | 720 | 1080;
+
+export interface YoutubeMetadata {
+  max_resolution: number;
+  title: string;
+  duration: number;
+  cached: boolean;
+}
+
+export interface ProcessURLPayload {
+  youtube_url: string;
+  selected_categories?: CategoryId[];
+  caption_style?: CaptionStyleId;
+  resolution?: Resolution;
+}
+
+// ── Wizard API calls ──────────────────────────────────────────────────────
+
+export async function getYoutubeMetadata(url: string): Promise<YoutubeMetadata> {
+  const res = await fetch(
+    `${API_BASE}/youtube/metadata?url=${encodeURIComponent(url)}`,
+    { headers: authHeaders() }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to fetch video metadata");
+  }
+  return res.json();
+}
+
+export async function processURL(
+  payload: string | ProcessURLPayload
+): Promise<ProcessURLResponse> {
+  const body =
+    typeof payload === "string" ? { youtube_url: payload } : payload;
   const res = await fetch(`${API_BASE}/process-url`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ youtube_url }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
