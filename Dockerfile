@@ -17,12 +17,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Bake the production backend URL at build time.
-# Can be overridden by Cloud Build substitution:
-#   --build-arg NEXT_PUBLIC_BACKEND_URL=https://...
-ARG NEXT_PUBLIC_BACKEND_URL=https://costs-real-vegetables-typical.trycloudflare.com
-ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
-
+# NEXT_PUBLIC_BACKEND_URL is read from .env.production by `next build`.
+# Update that file and rebuild whenever the backend URL changes.
 RUN npm run build
 
 
