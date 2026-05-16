@@ -226,3 +226,42 @@ export async function fetchSnapToken(tierId: string, amount: number): Promise<st
   if (!data.snap_token) throw new Error("Invalid token received from server.");
   return data.snap_token;
 }
+
+export interface VerifyPaymentResponse {
+  status: string;
+  upgraded: boolean;
+  message: string;
+  subscription_tier: string;
+  quota_seconds_remaining: number;
+}
+
+export async function verifyPayment(orderId: string): Promise<VerifyPaymentResponse> {
+  const res = await fetch(`${API_BASE}/payment/verify`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ order_id: orderId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to verify payment");
+  }
+  return res.json();
+}
+
+export interface ReconcileResponse {
+  subscription_tier: string;
+  quota_seconds_remaining: number;
+  checked: { order_id: string; status?: string; upgraded?: boolean; message?: string; error?: string }[];
+}
+
+export async function reconcilePayments(): Promise<ReconcileResponse> {
+  const res = await fetch(`${API_BASE}/payment/reconcile`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to reconcile payments");
+  }
+  return res.json();
+}

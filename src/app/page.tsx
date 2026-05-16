@@ -77,7 +77,29 @@ function LandingPage() {
       setPaymentSuccess(false);
       const snapToken = await fetchSnapToken(tierId, price);
       window.snap.pay(snapToken, {
-        onSuccess: () => setPaymentSuccess(true),
+        onSuccess: async (result: { order_id?: string }) => {
+          // Don't trust the Snap callback alone — verify with our backend
+          // (which calls Midtrans Status API) so the upgrade applies even
+          // when the webhook URL isn't reachable.
+          try {
+            if (result?.order_id) {
+              const { verifyPayment } = await import("@/lib/api");
+              await verifyPayment(result.order_id);
+            }
+            setPaymentSuccess(true);
+            // Force the app shell to re-fetch the user's tier next time
+            // they land on /app. Soft-reload their session here so the
+            // sidebar shows "Pro" without a manual refresh.
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          } catch (verifyErr) {
+            console.error("Payment verification failed:", verifyErr);
+            // Still show success — webhook may pick it up later. Tell the
+            // user to refresh in a moment.
+            setPaymentSuccess(true);
+          }
+        },
         onPending: () => alert("Payment is pending. Please complete the transaction."),
         onError: () => setPaymentError("Payment failed. Please try again."),
         onClose: () => setPaymentError("Payment was cancelled."),

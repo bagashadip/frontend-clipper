@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Loader2 } from "lucide-react";
+import { verifyPayment } from "@/lib/api";
 
 const TIERS = [
   {
@@ -63,9 +64,21 @@ export function Pricing() {
 
       // Trigger Midtrans Snap Popup
       window.snap.pay(snapToken, {
-        onSuccess: function (result: any) {
+        onSuccess: async function (result: { order_id?: string }) {
           console.log("Payment success:", result);
-          setSuccess(true);
+          // Verify with our backend so the upgrade applies even if the
+          // webhook URL isn't reachable from Midtrans.
+          try {
+            if (result?.order_id) {
+              await verifyPayment(result.order_id);
+            }
+            setSuccess(true);
+            // Reload so the app shell picks up the new tier from /auth/me.
+            setTimeout(() => window.location.reload(), 1500);
+          } catch (verifyErr) {
+            console.error("Payment verification failed:", verifyErr);
+            setSuccess(true);
+          }
         },
         onPending: function (result: any) {
           console.log("Payment pending:", result);
